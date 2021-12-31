@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" styleClass="mainBackground" stylesheets="@volcanolab.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.io7m.volcanolab.gui.internal.VLViewControllerMain">
+  <children>
+    <MenuBar prefHeight="32.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <menus>
+        <Menu text="%file">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#onQuitSelected" text="%quit">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+          </items>
+        </Menu>
+            <Menu text="%configuration">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onDevicesSelected" text="%devices" />
+              </items>
+            </Menu>
+            <Menu fx:id="menuExperiments" disable="true" text="%experiments" />
+            <Menu text="%window">
+              <items>
+                  <RadioMenuItem fx:id="windowMenuFullscreen" onAction="#onFullScreenSelected" text="%window.fullscreen" />
+              </items>
+            </Menu>
+      </menus>
+    </MenuBar>
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+         <children>
+            <Label fx:id="experimentName" alignment="TOP_LEFT" opacity="0.4" text="" StackPane.alignment="TOP_LEFT">
+               <StackPane.margin>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </StackPane.margin>
+            </Label>
+            <ImageView fx:id="mainImage" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" smooth="false" StackPane.alignment="CENTER" />
+            <Rectangle fx:id="mainImageBorder" arcHeight="1.0" arcWidth="1.0" fill="#1f93ff00" height="400.0" smooth="false" stroke="WHITE" strokeType="OUTSIDE" width="600.0" StackPane.alignment="CENTER" />
+            <Label fx:id="frameTime" StackPane.alignment="BOTTOM_LEFT">
+               <StackPane.margin>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </StackPane.margin>
+            </Label>
+            <ProgressBar fx:id="progressBar" prefHeight="8.0" prefWidth="256.0" progress="1.0" StackPane.alignment="BOTTOM_CENTER">
+               <StackPane.margin>
+                  <Insets bottom="32.0" />
+               </StackPane.margin>
+            </ProgressBar>
+         </children>
+      </StackPane>
+  </children>
+</AnchorPane>

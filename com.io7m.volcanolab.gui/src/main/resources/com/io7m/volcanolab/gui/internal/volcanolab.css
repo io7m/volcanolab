@@ -1,0 +1,80 @@
+.root
+{
+  -fx-font-size:         10pt;
+  -fx-font-family:       "Sans";
+  -fx-base:              #2f2020;
+  -fx-accent:            #d63434;
+  -fx-default-button:    #d63434;
+  -fx-focus-color:       #d63434;
+  -fx-faint-focus-color: #d63434;
+}
+
+.progress-bar > .track
+{
+  -fx-background-insets: 0 0 0 0;
+  -fx-background-radius: 0 0 0 0;
+  -fx-border-insets: 0 0 0 0;
+  -fx-padding: 0 0 0 0;
+}
+
+.progress-bar > .bar
+{
+  -fx-background-insets: 0 0 0 0;
+  -fx-background-radius: 0 0 0 0;
+  -fx-border-insets: 0 0 0 0;
+  -fx-padding: 0 0 0 0;
+}
+
+.button,
+.check-box,
+.choice-box,
+.color-picker,
+.color-picker.split-button,
+.combo-box-base,
+.container,
+.control-buttons-tab,
+.menu-button,
+.progress-bar,
+.radio-button,
+.text-field,
+.text-area,
+.tab,
+.tab-down-button,
+.tab-header-area,
+.tab-pane,
+.toggle-button
+{
+  -fx-background-radius: 0 0 0 0;
+  -fx-border-radius: 0 0 0 0;
+}
+
+.context-menu
+{
+  -fx-effect: none;
+}
+
+.tabButton {
+  -fx-font-size: 8pt;
+}
+
+.metaField {
+  -fx-font-size: 8pt;
+  -fx-font-family: "Monospace";
+}
+
+.errorHighlight
+{
+  -fx-background-color: #ffbbbb;
+}
+
+.noHeader .column-header-background
+{
+  -fx-max-height: 0;
+  -fx-pref-height: 0;
+  -fx-min-height: 0;
+}
+
+.mainBackground
+{
+  -fx-background-color: #303030;
+}
