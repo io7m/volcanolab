@@ -36,6 +36,7 @@ import com.io7m.jmulticlose.core.CloseableCollectionType;
 import com.io7m.jmulticlose.core.ClosingResourceFailedException;
 import com.io7m.volcanolab.experiment.api.ExperimentContextType;
 import com.io7m.volcanolab.experiment.api.ExperimentEventType;
+import com.io7m.volcanolab.experiment.api.ExperimentMouseButtons;
 import com.io7m.volcanolab.experiment.api.ExperimentType;
 import com.io7m.volcanolab.gui.internal.VLExperimentEventType.VLExperimentEvent;
 import com.io7m.volcanolab.gui.internal.VLExperimentEventType.VLExperimentSelected;
@@ -53,6 +54,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
+import javafx.scene.input.KeyCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +70,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -96,6 +99,8 @@ public final class VLExperiments implements VLExperimentsServiceType
   private final CloseableCollectionType<ClosingResourceFailedException> resources;
   private final ExecutionContext execContext;
   private final SimpleObjectProperty<VLDeviceSelection> deviceProperty;
+  private final ConcurrentHashMap.KeySetView<KeyCode, Boolean> keyStates;
+  private final AtomicReference<ExperimentMouseButtons> mouseButtons;
   private VulkanInstanceType instance;
   private final DoubleProperty frameTime;
   private volatile Disposable experimentSubscription;
@@ -119,6 +124,10 @@ public final class VLExperiments implements VLExperimentsServiceType
     this.resources = CloseableCollection.create();
     this.deviceProperty = new SimpleObjectProperty<>();
     this.frameTime = new SimpleDoubleProperty(0.0);
+    this.keyStates = ConcurrentHashMap.newKeySet();
+    this.mouseButtons =
+      new AtomicReference<>(
+        new ExperimentMouseButtons(false, false));
     this.execContext = new ExecutionContext(this);
   }
 
@@ -269,6 +278,38 @@ public final class VLExperiments implements VLExperimentsServiceType
   }
 
   @Override
+  public void setKeyDown(
+    final KeyCode code)
+  {
+    if (this.keyStates.add(code)) {
+      LOG.debug("keys: {}", this.keyStates);
+    }
+  }
+
+  @Override
+  public void setKeyUp(
+    final KeyCode code)
+  {
+    if (this.keyStates.remove(code)) {
+      LOG.debug("keys: {}", this.keyStates);
+    }
+  }
+
+  @Override
+  public void setKeysAllReleased()
+  {
+    this.keyStates.clear();
+    LOG.debug("keys: {}", this.keyStates);
+  }
+
+  @Override
+  public void setMouseButtons(
+    final ExperimentMouseButtons buttons)
+  {
+    this.mouseButtons.set(buttons);
+  }
+
+  @Override
   public void close()
     throws Exception
   {
@@ -341,8 +382,8 @@ public final class VLExperiments implements VLExperimentsServiceType
       final var timeThen = Instant.now();
       final var byteBuffer = imageNow.imageBuffer.getBuffer();
       experimentNow.render(this.execContext, byteBuffer);
-      final var timeNow = Instant.now();
 
+      final var timeNow = Instant.now();
       final var timeNext = timeThen.plusMillis(16L);
       final var timeWait = Duration.between(timeNow, timeNext);
       final var timeWaitMs = timeWait.toMillis();

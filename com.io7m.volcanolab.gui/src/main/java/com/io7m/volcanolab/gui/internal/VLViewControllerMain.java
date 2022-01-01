@@ -17,6 +17,7 @@
 package com.io7m.volcanolab.gui.internal;
 
 import com.io7m.volcanolab.experiment.api.ExperimentEventLifecycle;
+import com.io7m.volcanolab.experiment.api.ExperimentMouseButtons;
 import com.io7m.volcanolab.gui.internal.VLExperimentEventType.VLExperimentEvent;
 import com.io7m.volcanolab.gui.internal.VLExperimentEventType.VLExperimentSelected;
 import com.io7m.volcanolab.gui.internal.VLExperimentEventType.VLExperimentSizeChanged;
@@ -25,6 +26,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -32,15 +34,24 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.robot.Robot;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 /**
  * The main view controller.
@@ -48,18 +59,25 @@ import java.util.ResourceBundle;
 
 public final class VLViewControllerMain implements Initializable
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(VLViewControllerMain.class);
+
   private final Stage stage;
   private final VLMainStrings strings;
   private final VLServiceDirectoryType services;
   private final VLExperimentsServiceType experiments;
+  private final Robot robot;
 
-  @FXML private Menu menuExperiments;
   @FXML private ImageView mainImage;
-  @FXML private Rectangle mainImageBorder;
   @FXML private Label experimentName;
   @FXML private Label frameTime;
+  @FXML private Menu menuExperiments;
   @FXML private ProgressBar progressBar;
+  @FXML private RadioMenuItem windowMenuCaptureKeyboard;
   @FXML private RadioMenuItem windowMenuFullscreen;
+  @FXML private Rectangle mainImageBorder;
+  @FXML private Label captureHint;
+  @FXML private Label captureKey;
 
   /**
    * The main view controller.
@@ -80,6 +98,8 @@ public final class VLViewControllerMain implements Initializable
       mainServices.requireService(VLMainStrings.class);
     this.experiments =
       mainServices.requireService(VLExperimentsServiceType.class);
+    this.robot =
+      new Robot();
   }
 
   @Override
@@ -88,6 +108,15 @@ public final class VLViewControllerMain implements Initializable
     final ResourceBundle resources)
   {
     this.progressBar.setVisible(false);
+
+    this.stage.addEventFilter(KEY_PRESSED, this::onKeyPressed);
+    this.stage.addEventFilter(KEY_RELEASED, this::onKeyReleased);
+    this.stage.addEventFilter(MouseEvent.ANY, this::onMouseEvent);
+
+    this.windowMenuCaptureKeyboard.selectedProperty()
+      .addListener((observable, oldValue, newValue) -> {
+        this.onWindowCaptureSelectionChanged(newValue);
+      });
 
     this.stage.fullScreenProperty()
       .addListener((observable, oldValue, newValue) -> {
@@ -106,7 +135,11 @@ public final class VLViewControllerMain implements Initializable
 
     this.experiments.frameTimeProperty()
       .addListener((observable, oldValue, newValue) -> {
-        this.frameTime.setText(newValue + "ms");
+        this.frameTime.setText(
+          String.format(
+            "%.3f ms | %f fps",
+            newValue,
+            1000.0 / newValue.doubleValue()));
       });
 
     this.experiments.setScreenSize(
@@ -181,6 +214,20 @@ public final class VLViewControllerMain implements Initializable
     }
   }
 
+  private void onWindowCaptureSelectionChanged(
+    final Boolean enabled)
+  {
+    if (enabled) {
+      this.captureHint.setText(
+        this.strings.format("window.capture_hint_disable"));
+      return;
+    }
+
+    this.captureHint.setText(
+      this.strings.format("window.capture_hint_enable"));
+    this.experiments.setKeysAllReleased();
+  }
+
   @FXML
   private void onDevicesSelected()
     throws IOException
@@ -222,5 +269,73 @@ public final class VLViewControllerMain implements Initializable
   private void onFullScreenSelected()
   {
     this.stage.setFullScreen(this.windowMenuFullscreen.isSelected());
+  }
+
+  private void onMouseEvent(
+    final MouseEvent event)
+  {
+    this.stage.getScene()
+      .setCursor(Cursor.DEFAULT);
+
+    if (!this.windowMenuCaptureKeyboard.isSelected()) {
+      return;
+    }
+
+    this.stage.getScene()
+      .setCursor(Cursor.DISAPPEAR);
+
+    /*
+     * If mouse capture is enabled, warp the cursor to the center of the
+     * rendered image on every mouse event.
+     */
+
+    final var screen =
+      this.mainImage.localToScreen(
+        0.0,
+        0.0);
+
+    this.robot.mouseMove(screen.getX(), screen.getY());
+    this.experiments.setMouseButtons(
+      new ExperimentMouseButtons(
+        event.isPrimaryButtonDown(),
+        event.isSecondaryButtonDown()
+      )
+    );
+
+    event.consume();
+  }
+
+  private void onKeyPressed(
+    final KeyEvent event)
+  {
+    this.captureKey.setText(event.getCode().getName());
+
+    if (event.isControlDown() && event.getCode() == KeyCode.K) {
+      return;
+    }
+
+    if (!this.windowMenuCaptureKeyboard.isSelected()) {
+      return;
+    }
+
+    this.experiments.setKeyDown(event.getCode());
+    event.consume();
+  }
+
+  private void onKeyReleased(
+    final KeyEvent event)
+  {
+    this.captureKey.setText(event.getCode().getName());
+
+    if (event.isControlDown() && event.getCode() == KeyCode.K) {
+      return;
+    }
+
+    if (!this.windowMenuCaptureKeyboard.isSelected()) {
+      return;
+    }
+
+    this.experiments.setKeyUp(event.getCode());
+    event.consume();
   }
 }

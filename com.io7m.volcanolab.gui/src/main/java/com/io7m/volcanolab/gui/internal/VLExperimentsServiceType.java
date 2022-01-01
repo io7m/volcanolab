@@ -16,10 +16,12 @@
 
 package com.io7m.volcanolab.gui.internal;
 
+import com.io7m.volcanolab.experiment.api.ExperimentMouseButtons;
 import com.io7m.volcanolab.services.api.VLServiceType;
 import io.reactivex.rxjava3.core.Observable;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.scene.input.KeyCode;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,4 +47,14 @@ public interface VLExperimentsServiceType extends VLServiceType, AutoCloseable
     String name);
 
   CompletableFuture<VLDevicePropertiesList> listDevices();
+
+  void setKeyDown(KeyCode code);
+
+  void setKeyUp(KeyCode code);
+
+  void setKeysAllReleased();
+
+  void setMouseButtons(
+    ExperimentMouseButtons buttons);
+
 }

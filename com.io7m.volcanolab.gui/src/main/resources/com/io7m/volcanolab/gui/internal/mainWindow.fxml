@@ -10,7 +10,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" styleClass="mainBackground" stylesheets="@volcanolab.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.io7m.volcanolab.gui.internal.VLViewControllerMain">
@@ -33,30 +35,53 @@
             <Menu fx:id="menuExperiments" disable="true" text="%experiments" />
             <Menu text="%window">
               <items>
-                  <RadioMenuItem fx:id="windowMenuFullscreen" onAction="#onFullScreenSelected" text="%window.fullscreen" />
+                  <RadioMenuItem fx:id="windowMenuFullscreen" onAction="#onFullScreenSelected" text="%window.fullscreen">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></RadioMenuItem>
+                  <RadioMenuItem fx:id="windowMenuCaptureKeyboard" mnemonicParsing="false" text="%window.capture_keyboard">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="K" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </RadioMenuItem>
               </items>
             </Menu>
       </menus>
     </MenuBar>
       <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
          <children>
-            <Label fx:id="experimentName" alignment="TOP_LEFT" opacity="0.4" text="" StackPane.alignment="TOP_LEFT">
+            <Label fx:id="experimentName" alignment="TOP_LEFT" opacity="0.8" text="" StackPane.alignment="TOP_LEFT">
                <StackPane.margin>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                  <Insets bottom="16.0" left="8.0" right="16.0" top="8.0" />
                </StackPane.margin>
             </Label>
-            <ImageView fx:id="mainImage" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" smooth="false" StackPane.alignment="CENTER" />
-            <Rectangle fx:id="mainImageBorder" arcHeight="1.0" arcWidth="1.0" fill="#1f93ff00" height="400.0" smooth="false" stroke="WHITE" strokeType="OUTSIDE" width="600.0" StackPane.alignment="CENTER" />
             <Label fx:id="frameTime" StackPane.alignment="BOTTOM_LEFT">
                <StackPane.margin>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                  <Insets bottom="8.0" left="8.0" right="16.0" top="16.0" />
                </StackPane.margin>
             </Label>
-            <ProgressBar fx:id="progressBar" prefHeight="8.0" prefWidth="256.0" progress="1.0" StackPane.alignment="BOTTOM_CENTER">
+            <VBox alignment="CENTER">
+               <children>
+                  <StackPane>
+                     <children>
+                        <ImageView fx:id="mainImage" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" smooth="false" />
+                        <Rectangle fx:id="mainImageBorder" arcHeight="1.0" arcWidth="1.0" fill="#1f93ff00" height="400.0" smooth="false" stroke="WHITE" strokeType="OUTSIDE" width="600.0" />
+                     </children>
+                  </StackPane>
+                  <Region maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="16.0" prefWidth="256.0" />
+                  <ProgressBar fx:id="progressBar" prefHeight="8.0" prefWidth="256.0" progress="1.0" />
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_RIGHT" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity"
+                  minHeight="-Infinity" minWidth="-Infinity" opacity="0.8" StackPane.alignment="BOTTOM_RIGHT">
                <StackPane.margin>
-                  <Insets bottom="32.0" />
+                  <Insets bottom="8.0" right="8.0" />
                </StackPane.margin>
-            </ProgressBar>
+               <children>
+                  <Label fx:id="captureKey" alignment="CENTER_RIGHT" textAlignment="RIGHT" />
+                  <Label fx:id="captureHint" text="%window.capture_hint_enable" textAlignment="RIGHT" />
+               </children>
+            </VBox>
          </children>
       </StackPane>
   </children>
